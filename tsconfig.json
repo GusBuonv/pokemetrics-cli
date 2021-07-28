@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+	  "module": "CommonJS",
+	  "target": "ES2019",
+	  "lib": [
+      	"ESNext",
+	  ],
+	  "allowJs": false,
+	  "strict": true,
+	  "outDir": "dist",
+	  "experimentalDecorators": true,
+	  "declaration": true,
+	  "emitDecoratorMetadata": true
+	},
+	"exclude": [
+	  "**/__test__/**/*",
+	  "node_modules",
+	  "dist"
+	],
+	"include": [
+	  "src/**/*",
+	  "test/**/*"
+	]
+}
