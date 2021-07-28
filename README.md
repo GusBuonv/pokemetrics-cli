@@ -13,6 +13,9 @@ A toy cli to query and return biometric data (height & weight) on Pokémon
 - Install the project:
   - `yarn install` *OR*
   - `npm install`
+- Build:
+  - `yarn build` *OR*
+  - `npx build`
 - Invoke the cli:
   - `yarn pokemetrics --offset <integer> --limit <integer>` *OR*
   - `npx pokemetrics --offset <integer> --limit <integer>`

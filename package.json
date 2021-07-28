@@ -5,6 +5,10 @@
   "main": "build/index.js",
   "author": "Augustus Buonviri <abuonviri@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "pokemetrics": "node scripts/pokemetrics.js"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.24",
     "@types/node": "^16.4.3",
