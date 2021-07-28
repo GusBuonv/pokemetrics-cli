@@ -1,4 +1,5 @@
 import fetchPokemetrics from '../fetchPokemetrics';
+import { Pokemetrics } from '../types';
 
 it('does not throw', async () => {
   await fetchPokemetrics({ offset: 0, limit: 1 });
@@ -14,7 +15,7 @@ it('aggregates weight and height correctly', async () => {
 it('aggregates type weight and height correctly', async () => {
   expect.assertions(12);
 
-  const expected = {
+  const expected: Record<string, Pokemetrics> = {
     grass: {
       weight: (69 + 130 + 1000) / 3,
       height: (7 + 10 + 20) / 3,
