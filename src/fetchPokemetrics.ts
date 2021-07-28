@@ -1,4 +1,7 @@
+import { pipe } from 'fp-ts/lib/function';
+import { fold } from 'fp-ts/lib/Either';
 import fetch from 'node-fetch';
+import { RawPokemetricsC } from './Codecs';
 import { Pokemetrics, AggregatePokemetrics, RawPokemetrics } from './types';
 
 const pokemetricsQuery = `
@@ -42,34 +45,45 @@ export default async function fetchPokemetrics({
     }),
   });
 
-  // TODO: Validate on failure for speed of normal execution + helpful logs
+  let result: AggregatePokemetrics;
   const raw: RawPokemetrics = await response.json();
-  const { nodes, aggregate } = raw.data.pokemetrics;
+  try {
+    const { nodes, aggregate } = raw.data.pokemetrics;
 
-  const types: Record<string, Pokemetrics> = {};
-  const counts: Record<string, number> = {};
+    const types: Record<string, Pokemetrics> = {};
+    const counts: Record<string, number> = {};
 
-  nodes.forEach(({ weight, height, types: typeList }) => {
-    typeList.forEach(({ type }) => {
-      const { name } = type;
-      if (types[name] && counts[name]) {
-        types[name].height += height;
-        types[name].weight += weight;
-        counts[name] += 1;
-      } else {
-        types[name] = { height, weight };
-        counts[name] = 1;
-      }
+    nodes.forEach(({ weight, height, types: typeList }) => {
+      typeList.forEach(({ type }) => {
+        const { name } = type;
+        if (types[name] && counts[name]) {
+          types[name].height += height;
+          types[name].weight += weight;
+          counts[name] += 1;
+        } else {
+          types[name] = { height, weight };
+          counts[name] = 1;
+        }
+      });
     });
-  });
 
-  Object.keys(types).forEach((key) => {
-    types[key].weight /= counts[key];
-    types[key].height /= counts[key];
-  });
+    Object.keys(types).forEach((key) => {
+      types[key].weight /= counts[key];
+      types[key].height /= counts[key];
+    });
 
-  return {
-    ...aggregate.avg,
-    types,
-  };
+    result = {
+      ...aggregate.avg,
+      types,
+    };
+  } catch (error) {
+    const onLeft = () => {
+      throw new TypeError('Invalid query result received');
+    };
+    const onRight = () => { throw error; };
+    pipe(RawPokemetricsC.decode(raw), fold(onLeft, onRight));
+    throw new Error('Impossible');
+  }
+
+  return result;
 }
