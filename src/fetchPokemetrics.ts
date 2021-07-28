@@ -25,6 +25,8 @@ query aggregate_pokemetrics($offset: Int, $limit: Int) {
   }
 }`;
 
+const cache: Record<string, AggregatePokemetrics> = {};
+
 export interface FetchPokemetricsParams {
   /** The Pokédex number of the first Pokémon to query */
   offset: number,
@@ -32,10 +34,24 @@ export interface FetchPokemetricsParams {
   limit: number,
 }
 
+/** Return the average weight and height of pokemon in a list, with by-type breakdown */
 export default async function fetchPokemetrics({
   offset,
   limit,
 }: FetchPokemetricsParams): Promise<AggregatePokemetrics> {
+  if (!Number.isInteger(offset) || !Number.isInteger(limit)) {
+    throw new TypeError('offset and limit must both be integers');
+  }
+
+  if (offset < 0 || limit < 0) {
+    throw new TypeError('offset and limit must both be non-negative');
+  }
+
+  const cacheKey = `${offset}-${limit}`;
+  if (cache[cacheKey]) {
+    return cache[cacheKey];
+  }
+
   const response = await fetch('https://beta.pokeapi.co/graphql/v1beta', {
     method: 'POST',
     body: JSON.stringify({
@@ -85,5 +101,6 @@ export default async function fetchPokemetrics({
     throw new Error('Impossible');
   }
 
+  cache[cacheKey] = result;
   return result;
 }
